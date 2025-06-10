@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black-Scholes Formula Explained</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1.3em;
+            margin-bottom: 40px;
+        }
+        
+        .formula-box {
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .formula {
+            font-size: 2.2em;
+            font-family: 'Times New Roman', serif;
+            margin: 20px 0;
+            line-height: 1.4;
+        }
+        
+        .formula-legend {
+            font-size: 1.1em;
+            margin-top: 20px;
+            color: #cbd5e0;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .card h3 {
+            color: #2d3748;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .card p {
+            color: #4a5568;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin: 20px 0;
+        }
+        
+        .variable-highlight {
+            background: #e6fffa;
+            border: 2px solid #38b2ac;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .variable-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c7a7b;
+            margin-bottom: 5px;
+        }
+        
+        .intuition-box {
+            background: linear-gradient(135deg, #fed7d7, #fbb6ce);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 5px solid #e53e3e;
+        }
+        
+        .deep-dive {
+            background: linear-gradient(145deg, #f0f4f8, #d6e8f5);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .question-box {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 3px solid #4299e1;
+        }
+        
+        .answer-box {
+            background: #f0fff4;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0 20px 0;
+            border-left: 3px solid #38a169;
+        }
+        
+        .interactive-section {
+            background: linear-gradient(135deg, #fef5e7, #fed7aa);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .slider-label {
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .result-display {
+            background: #2d3748;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📈 Black-Scholes Formula Explained</h1>
+        <p class="subtitle">The Nobel Prize-winning formula that revolutionized options trading</p>
+        
+        <div class="formula-box">
+            <h2 style="margin-bottom: 20px;">The Famous Formula</h2>
+            <div class="formula">
+                C = S₀ × N(d₁) - K × e^(-r×T) × N(d₂)
+            </div>
+            <div class="formula-legend">
+                Where C = Call Option Price (what we're trying to find!)
+            </div>
+        </div>
+        
+        <div class="intuition-box">
+            <h3 style="color: #742a2a; margin-bottom: 15px;">🤔 What Does This Actually Mean?</h3>
+            <p style="color: #2d3748; line-height: 1.6;">Imagine you want to buy a "ticket" that gives you the RIGHT (but not obligation) to buy a stock at a specific price in the future. How much should that ticket cost? Black-Scholes gives you the answer by weighing the chances of making money vs. losing money.</p>
+        </div>
+        
+        <h2 style="color: #2d3748; margin: 40px 0 20px 0; text-align: center;">🧩 Breaking Down Each Variable</h2>
+        
+        <div class="grid">
+            <div class="card">
+                <div class="variable-highlight">
+                    <div class="variable-name">S₀</div>
+                    <p><strong>Current Stock Price</strong></p>
+                    <p>This is what the stock costs right now, today. If Apple stock is trading at $150, then S₀ = $150.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="stockPriceChart"></canvas>
+                </div>
+                <p style="font-style: italic; color: #4a5568;">Think of this as your starting point - where the race begins!</p>
+            </div>
+            
+            <div class="card">
+                <div class="variable-highlight">
+                    <div class="variable-name">K</div>
+                    <p><strong>Strike Price</strong></p>
+                    <p>This is the price YOU get to buy the stock at if you use your option. It's locked in when you buy the option.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="strikePriceChart"></canvas>
+                </div>
+                <p style="font-style: italic; color: #4a5568;">This is your "target price" - you make money if the stock goes above this!</p>
+            </div>
+            
+            <div class="card">
+                <div class="variable-highlight">
+                    <div class="variable-name">T</div>
+                    <p><strong>Time to Expiration</strong></p>
+                    <p>How much time is left before your option expires? Measured in years (so 6 months = 0.5).</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="timeChart"></canvas>
+                </div>
+                <p style="font-style: italic; color: #4a5568;">More time = more chances for the stock to move in your favor!</p>
+            </div>
+            
+            <div class="card">
+                <div class="variable-highlight">
+                    <div class="variable-name">r</div>
+                    <p><strong>Risk-Free Rate</strong></p>
+                    <p>The interest rate you could get from a super safe investment (like government bonds). Usually around 2-5%.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="rateChart"></canvas>
+                </div>
+                <p style="font-style: italic; color: #4a5568;">Higher rates make options less valuable because you could just invest safely instead!</p>
+            </div>
+            
+            <div class="card">
+                <div class="variable-highlight">
+                    <div class="variable-name">σ (sigma)</div>
+                    <p><strong>Volatility</strong></p>
+                    <p>How "jumpy" or unpredictable the stock price is. Wild stocks have high volatility, stable stocks have low volatility.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="volatilityChart"></canvas>
+                </div>
+                <p style="font-style: italic; color: #4a5568;">More volatility = higher option prices (more chance of big moves!)</p>
+            </div>
+            
+            <div class="card">
+                <div class="variable-highlight">
+                    <div class="variable-name">N(d₁) & N(d₂)</div>
+                    <p><strong>Probability Functions</strong></p>
+                    <p>These calculate the probability that your option will be profitable. They're based on the normal distribution (bell curve).</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="probabilityChart"></canvas>
+                </div>
+                <p style="font-style: italic; color: #4a5568;">These are the "smart math" parts that figure out your chances of winning!</p>
+            </div>
+        </div>
+        
+        <div class="interactive-section">
+            <h3 style="color: #2d3748; text-align: center; margin-bottom: 25px;">🎮 Interactive Black-Scholes Calculator</h3>
+            <p style="text-align: center; color: #4a5568; margin-bottom: 25px;">Move the sliders to see how each variable affects the option price!</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div class="slider-container">
+                    <div class="slider-label">Stock Price (S₀): $<span id="stockValue">100</span></div>
+                    <input type="range" class="slider" id="stockSlider" min="50" max="200" value="100">
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Strike Price (K): $<span id="strikeValue">100</span></div>
+                    <input type="range" class="slider" id="strikeSlider" min="50" max="200" value="100">
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Time (T): <span id="timeValue">0.25</span> years</div>
+                    <input type="range" class="slider" id="timeSlider" min="0.1" max="2" step="0.1" value="0.25">
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Risk-free Rate (r): <span id="rateValue">5</span>%</div>
+                    <input type="range" class="slider" id="rateSlider" min="1" max="10" step="0.5" value="5">
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Volatility (σ): <span id="volValue">20</span>%</div>
+                    <input type="range" class="slider" id="volSlider" min="5" max="80" step="5" value="20">
+                </div>
+            </div>
+            
+            <div class="result-display">
+                Call Option Price: $<span id="optionPrice">5.85</span>
+            </div>
+        </div>
+        
+        <div class="deep-dive">
+            <h2 style="color: #2d3748; font-size: 1.8em; margin-bottom: 20px;">🔬 First Principles Deep Dive</h2>
+            
+            <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <h3 style="color: #4a5568; margin-bottom: 15px;">Why Does Black-Scholes Even Work?</h3>
+                <p style="color: #2d3748; line-height: 1.6; margin-bottom: 15px;">The formula is built on a brilliant insight: <strong>you can create a "risk-free" portfolio by combining the stock and the option in just the right amounts.</strong> If you can eliminate risk, then the return must equal the risk-free rate - otherwise, you'd have a money-printing machine!</p>
+                <p style="color: #4a5568; line-height: 1.6;">It's like discovering that you can balance a seesaw perfectly by putting the right weights on each side. Once balanced, you know exactly how much each weight is worth.</p>
+            </div>
+            
+            <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <h3 style="color: #4a5568; margin-bottom: 15px;">The Key Assumptions (And Why They Matter)</h3>
+                <div class="question-box">
+                    <p style="color: #2d3748; font-weight: bold; margin-bottom: 5px;">Q: What if the stock price doesn't follow a "random walk"?</p>
+                </div>
+                <div class="answer-box">
+                    <p style="color: #2d3748; line-height: 1.6;">A: Black-Scholes assumes stock prices move randomly (like a drunk person walking). In reality, stocks can have trends, jumps, and crashes. This is why the formula sometimes gives wrong answers during market crises!</p>
+                </div>
+                
+                <div class="question-box">
+                    <p style="color: #2d3748; font-weight: bold; margin-bottom: 5px;">Q: Why does volatility stay constant in the formula?</p>
+                </div>
+                <div class="answer-box">
+                    <p style="color: #2d3748; line-height: 1.6;">A: It doesn't in real life! Volatility changes all the time. That's why traders created the "volatility smile" - they adjust the Black-Scholes formula for different strike prices and times.</p>
+                </div>
+                
+                <div class="question-box">
+                    <p style="color: #2d3748; font-weight: bold; margin-bottom: 5px;">Q: What about dividends?</p>
+                </div>
+                <div class="answer-box">
+                    <p style="color: #2d3748; line-height: 1.6;">A: The basic formula assumes no dividends. If a stock pays dividends, you need to adjust it because dividends reduce the stock price on the ex-dividend date.</p>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <h3 style="color: #4a5568; margin-bottom: 15px;">The "Greeks" - How Sensitive Is Your Option?</h3>
+                <p style="color: #2d3748; line-height: 1.6; margin-bottom: 15px;">Black-Scholes doesn't just give you the price - it tells you how that price changes:</p>
+                <ul style="color: #4a5568; line-height: 1.6; margin-left: 20px;">
+                    <li><strong>Delta (Δ):</strong> How much the option price changes when the stock price moves $1</li>
+                    <li><strong>Gamma (Γ):</strong> How much Delta itself changes (acceleration of price changes)</li>
+                    <li><strong>Theta (Θ):</strong> How much value you lose each day as time passes (time decay)</li>
+                    <li><strong>Vega (ν):</strong> How much the price changes when volatility changes 1%</li>
+                    <li><strong>Rho (ρ):</strong> How much the price changes when interest rates change 1%</li>
+                </ul>
+            </div>
+            
+            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <h3 style="color: #4a5568; margin-bottom: 15px;">Why This Formula Changed the World</h3>
+                <p style="color: #2d3748; line-height: 1.6; margin-bottom: 15px;">Before Black-Scholes, options pricing was basically guesswork. Traders relied on intuition and experience. This formula:</p>
+                <ul style="color: #4a5568; line-height: 1.6; margin-left: 20px; margin-bottom: 15px;">
+                    <li>Created standardized pricing across all markets</li>
+                    <li>Enabled the explosive growth of derivatives markets (now worth over $1 quadrillion!)</li>
+                    <li>Gave birth to quantitative finance and "rocket scientists" on Wall Street</li>
+                    <li>Provided tools for risk management that didn't exist before</li>
+                </ul>
+                <p style="color: #2d3748; line-height: 1.6; font-style: italic;">It's like going from navigating by the stars to having GPS - everything became more precise and accessible.</p>
+            </div>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 25px; border-radius: 10px; color: white; text-align: center;">
+            <h3 style="margin-bottom: 15px; font-size: 1.4em;">🎯 The Bottom Line</h3>
+            <p style="line-height: 1.6; font-size: 1.1em;">Black-Scholes takes the guesswork out of options pricing by using math to balance risk and reward. It's not perfect, but it gave traders a common language and turned derivatives from a niche market into the backbone of modern finance.</p>
+        </div>
+    </div>
+
+    <script>
+        // Utility functions
+        function normalCDF(x) {
+            return 0.5 * (1 + erf(x / Math.sqrt(2)));
+        }
+        
+        function erf(x) {
+            // Approximation of error function
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+            
+            const sign = x >= 0 ? 1 : -1;
+            x = Math.abs(x);
+            
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+            
+            return sign * y;
+        }
+        
+        function blackScholes(S, K, T, r, sigma) {
+            const d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+            const d2 = d1 - sigma * Math.sqrt(T);
+            
+            const call = S * normalCDF(d1) - K * Math.exp(-r * T) * normalCDF(d2);
+            return Math.max(0, call);
+        }
+        
+        // Chart configurations
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { title: { display: true } },
+                y: { title: { display: true } }
+            }
+        };
+        
+        // Stock Price Chart
+        const stockCtx = document.getElementById('stockPriceChart').getContext('2d');
+        const stockData = [];
+        for (let i = 0; i <= 10; i++) {
+            stockData.push({x: i, y: 100 + Math.random() * 20 - 10 + i * 2});
+        }
+        new Chart(stockCtx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Stock Price Over Time',
+                    data: stockData,
+                    borderColor: '#38a169',
+                    backgroundColor: 'rgba(56, 161, 105, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    x: { title: { display: true, text: 'Time' } },
+                    y: { title: { display: true, text: 'Price ($)' } }
+                }
+            }
+        });
+        
+        // Strike Price Chart
+        const strikeCtx = document.getElementById('strikePriceChart').getContext('2d');
+        const strikeLabels = [];
+        const strikeProfits = [];
+        for (let strike = 80; strike <= 120; strike += 5) {
+            strikeLabels.push(strike);
+            strikeProfits.push(Math.max(0, 110 - strike));
+        }
+        new Chart(strikeCtx, {
+            type: 'bar',
+            data: {
+                labels: strikeLabels,
+                datasets: [{
+                    label: 'Profit at Expiration',
+                    data: strikeProfits,
+                    backgroundColor: strikeProfits.map(p => p > 0 ? 'rgba(56, 161, 105, 0.7)' : 'rgba(229, 62, 62, 0.7)'),
+                    borderColor: strikeProfits.map(p => p > 0 ? '#38a169' : '#e53e3e'),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    x: { title: { display: true, text: 'Strike Price ($)' } },
+                    y: { title: { display: true, text: 'Profit ($)' } }
+                }
+            }
+        });
+        
+        // Time Decay Chart
+        const timeCtx = document.getElementById('timeChart').getContext('2d');
+        const timeData = [];
+        for (let t = 0; t <= 1; t += 0.1) {
+            const price = blackScholes(100, 100, t, 0.05, 0.2);
+            timeData.push({x: t, y: price});
+        }
+        new Chart(timeCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Option Value vs Time',
+                    data: timeData,
+                    borderColor: '#3182ce',
+                    backgroundColor: 'rgba(49, 130, 206, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    showLine: true
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    x: { title: { display: true, text: 'Time to Expiration (years)' } },
+                    y: { title: { display: true, text: 'Option Price ($)' } }
+                }
+            }
+        });
+        
+        // Interest Rate Chart
+        const rateCtx = document.getElementById('rateChart').getContext('2d');
+        const rateData = [];
+        for (let r = 0; r <= 0.1; r += 0.01) {
+            const price = blackScholes(100, 100, 0.25, r, 0.2);
+            rateData.push({x: r * 100, y: price});
+        }
+        new Chart(rateCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Option Value vs Interest Rate',
+                    data: rateData,
+                    borderColor: '#d69e2e',
+                    backgroundColor: 'rgba(214, 158, 46, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    showLine: true
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    x: { title: { display: true, text: 'Interest Rate (%)' } },
+                    y: { title: { display: true, text: 'Option Price ($)' } }
+                }
+            }
+        });
+        
+        // Volatility Chart
+        const volCtx = document.getElementById('volatilityChart').getContext('2d');
+        const volData = [];
+        for (let vol = 0.05; vol <= 0.8; vol += 0.05) {
+            const price = blackScholes(100, 100, 0.25, 0.05, vol);
+            volData.push({x: vol * 100, y: price});
+        }
+        new Chart(volCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Option Value vs Volatility',
+                    data: volData,
+                    borderColor: '#e53e3e',
+                    backgroundColor: 'rgba(229, 62, 62, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    showLine: true
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    x: { title: { display: true, text: 'Volatility (%)' } },
+                    y: { title: { display: true, text: 'Option Price ($)' } }
+                }
+            }
+        });
+        
+        // Probability Chart (Normal Distribution)
+        const probCtx = document.getElementById('probabilityChart').getContext('2d');
+        const probData = [];
+        for (let x = -3; x <= 3; x += 0.1) {
+            const y = Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+            probData.push({x: x, y: y});
+        }
+        new Chart(probCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Normal Distribution',
+                    data: probData,
+                    borderColor: '#805ad5',
+                    backgroundColor: 'rgba(128, 90, 213, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    showLine: true
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    x: { title: { display: true, text: 'Standard Deviations' } },
+                    y: { title: { display: true, text: 'Probability Density' } }
+                }
+            }
+        });
+        
+        // Interactive Calculator
+        function updateCalculator() {
+            const S = parseFloat(document.getElementById('stockSlider').value);
+            const K = parseFloat(document.getElementById('strikeSlider').value);
+            const T = parseFloat(document.getElementById('timeSlider').value);
+            const r = parseFloat(document.getElementById('rateSlider').value) / 100;
+            const vol = parseFloat(document.getElementById('volSlider').value) / 100;
+            
+            document.getElementById('stockValue').textContent = S;
+            document.getElementById('strikeValue').textContent = K;
+            document.getElementById('timeValue').textContent = T;
+            document.getElementById('rateValue').textContent = (r * 100).toFixed(1);
+            document.getElementById('volValue').textContent = (vol * 100);
+            
+            const price = blackScholes(S, K, T, r, vol);
+            document.getElementById('optionPrice').textContent = price.toFixed(2);
+        }
+        
+        // Add event listeners to sliders
+        document.getElementById('stockSlider').addEventListener('input', updateCalculator);
+        document.getElementById('strikeSlider').addEventListener('input', updateCalculator);
+        document.getElementById('timeSlider').addEventListener('input', updateCalculator);
+        document.getElementById('rateSlider').addEventListener('input', updateCalculator);
+        document.getElementById('volSlider').addEventListener('input', updateCalculator);
+        
+        // Initialize calculator
+        updateCalculator();
+    </script>
+</body>
+</html>
