@@ -37,7 +37,7 @@ d_1 = \frac{\ln(S/K) + (r + \sigma^2 / 2)T}{\sigma \sqrt{T}}, \quad d_2 = d_1 - 
 
 ## 🚀 Live Demo
 
-👉 [Try it live here](https://quant.inthisone.com/tools/black-scholes-calculator)
+👉 [Try it live here](https://quant.inthisone.com/tools/black-scholes/)
 
 ## 🛠 Tech Stack
 
